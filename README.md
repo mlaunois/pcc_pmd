@@ -1,20 +1,28 @@
 # PCC PMD
-<img src="https://img.shields.io/badge/version-alpha%2011-informational?style=plastic"> <br>
-### PCC 2nd génération pour Paris Metro Driver <br>
-<a href="https://github.com/lapatatedouce59/pcc_pmd/commits/master"><img src="https://img.shields.io/github/last-commit/lapatatedouce59/pcc_pmd?style=plastic"></a> <a href="https://github.com/lapatatedouce59/pcc_pmd/issues"><img src="https://img.shields.io/github/issues-raw/lapatatedouce59/pcc_pmd?style=plastic"></a> <a href="https://github.com/lapatatedouce59/pcc_pmd/pulls"><img src="https://img.shields.io/github/issues-pr-raw/lapatatedouce59/pcc_pmd?style=plastic"></a> <br>
+![PCC version alpha 12](https://img.shields.io/badge/version-alpha%2012-informational?style=plastic)
 
-Développement du Poste de Contrôles Centralisés de Paris Metro Driver, 2ème génération. <br>
-Pour des raisons de confidentialité, uniquement certaines ressources sont dévoilées.<br>
-[Page de test publique](https://pmdapp.fr/tools/pccBeta). 
+[Version originale](https://github.com/lapatatedouce59/pcc_pmd)
+
+### PCC 2e génération pour Paris Metro Driver
+
+Développement du Poste de Contrôle Centralisé (2ème génération) de [Paris Metro Driver](https://pmdapp.fr).
+
+Pour des raisons de confidentialité, uniquement certaines ressources sont dévoilées.
+
+[Page de test publique](https://pmdapp.fr/tools/pccBeta).
+
 La documentation arrivera bientôt.
 
 # Instalation et utilisation
 
-Install NodeJS and run the `ws.js` via the following command:
-```js
-node ws.js
-```
-Run the `index.html` via a basic **web server**, either with *WAMP* (or *XAMP*...) or with *Live Server* extention in VSCode. <br>
-In case of bugs, consider submitting an Issue.
-
-``````
+1. [Installez Node.js](https://nodejs.org/fr) pour votre système d’exploitation.
+2. Téléchargez le contenu de ce dépôt.
+   - Si vous utilisez [Git](https://git-scm.com/), vous pouvez exécuter dans une
+invite de commandes : `git clone https://github.com/mlaunois/pcc_pmd`. Le projet est alors disponible dans le dossier `pcc_pmd`.
+   - Sinon, téléchargez la dernière révision du projet et extrayez le contenu du fichier `.zip` avec le programme de votre choix. Le projet est alors disponible dans le dossier `pcc_pmd-master`.
+3. Naviguez dans le dossier du projet. Exécutez les commandes :
+    ```
+    npm i
+    node ws.js
+    ```
+4. Démarrez un serveur web dont le chemin racine pointe vers le dossier du projet.
