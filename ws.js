@@ -490,6 +490,90 @@ wss.on('connection', (ws, req) => {
                     }
                     apiSave()
                 } else
+                if (data.execute==='ZOPP-ON-COM'){
+                    let response = JSON.parse(getCantonsInfo(data.target))
+                    if(!response) return;
+                    let trainObj=pccApi.SEC[response.secIndex].cantons[response.cantonIndex].trains[parseInt(response.trainIndex)]
+                    let stationObj = pccApi.SEC[response.secIndex].cantons[response.cantonIndex]
+                    if(stationObj.hasOwnProperty('type')){
+                        stationObj.states.doorsOpenedWithoutTrain=false
+                    }
+                    trainObj.states.inZOPP=true
+                    apiSave()
+                } else
+                if (data.execute==='ZOPP-OFF-COM'){
+                    let response = JSON.parse(getCantonsInfo(data.target))
+                    if(!response) return;
+                    let trainObj=pccApi.SEC[response.secIndex].cantons[response.cantonIndex].trains[parseInt(response.trainIndex)]
+                    let stationObj = pccApi.SEC[response.secIndex].cantons[response.cantonIndex]
+                    if(stationObj.hasOwnProperty('type')){
+                        if(stationObj.states.doorsOpened){
+                            stationObj.states.doorsOpenedWithoutTrain=2
+                        }
+                    }
+                    trainObj.states.inZOPP=false
+                    apiSave()
+                } else
+                if (data.execute==='SAFE-ON-COM'){
+                    let response = JSON.parse(getCantonsInfo(data.target))
+                    if(!response) return;
+                    let trainObj=pccApi.SEC[response.secIndex].cantons[response.cantonIndex].trains[parseInt(response.trainIndex)]
+                    let stationObj = pccApi.SEC[response.secIndex].cantons[response.cantonIndex]
+                    
+                    trainObj.states.trainSecurised=true
+                    apiSave()
+                } else
+                if (data.execute==='SAFE-OFF-COM'){
+                    let response = JSON.parse(getCantonsInfo(data.target))
+                    if(!response) return;
+                    let trainObj=pccApi.SEC[response.secIndex].cantons[response.cantonIndex].trains[parseInt(response.trainIndex)]
+                    let stationObj = pccApi.SEC[response.secIndex].cantons[response.cantonIndex]
+                    
+                    trainObj.states.trainSecurised=false
+                    apiSave()
+                } else
+                if (data.execute==='OBSVEH-ON-COM'){
+                    let response = JSON.parse(getCantonsInfo(data.target))
+                    if(!response) return;
+                    let trainObj=pccApi.SEC[response.secIndex].cantons[response.cantonIndex].trains[parseInt(response.trainIndex)]
+                    trainObj.states.obstalceActive=true
+                    apiSave()
+                } else
+                if (data.execute==='OBSVEH-OFF-COM'){
+                    let response = JSON.parse(getCantonsInfo(data.target))
+                    if(!response) return;
+                    let trainObj=pccApi.SEC[response.secIndex].cantons[response.cantonIndex].trains[parseInt(response.trainIndex)]
+                    trainObj.states.obstalceActive=false
+                    apiSave()
+                } else
+                if (data.execute==='EMCALL-BTN'){
+                    let response = JSON.parse(getCantonsInfo(data.target))
+                    if(!response) return;
+                    let trainObj=pccApi.SEC[response.secIndex].cantons[response.cantonIndex].trains[parseInt(response.trainIndex)]
+                    trainObj.states.trainEmCall=2
+                    trainObj.states.forbiddenStart=2
+                    let stationObj = pccApi.SEC[response.secIndex].cantons[response.cantonIndex]
+                    if(stationObj.hasOwnProperty('type')){
+                        stationObj.states.DSO=true
+                        stationObj.states.IDPOAlreadyActiveByALC=true
+                    }
+                    apiSave()
+                } else
+                if (data.execute==='ACQEMCALL-BTN'){
+                    let response = JSON.parse(getCantonsInfo(data.target))
+                    if(!response) return;
+                    let trainObj=pccApi.SEC[response.secIndex].cantons[response.cantonIndex].trains[parseInt(response.trainIndex)]
+                    trainObj.states.trainEmCall=false
+                    trainObj.states.forbiddenStart=false
+                    let stationObj = pccApi.SEC[response.secIndex].cantons[response.cantonIndex]
+                    stationObj.states.IDPOAlreadyActiveByALC=false
+                    apiSave()
+                }
+
+                if (!data.target.cIndex) {
+                    // L'utilisateur n'a pas sélectionné de station valide
+                    return;
+                }
                 if (data.execute==='CLOSEPP-BTN'){
                     let stationIndex = parseInt(data.target.cIndex)
                     let sectionIndex = parseInt(data.target.secIndex)
@@ -601,30 +685,6 @@ wss.on('connection', (ws, req) => {
                     }
                     apiSave()
                 } else
-                if (data.execute==='ZOPP-ON-COM'){
-                    let response = JSON.parse(getCantonsInfo(data.target))
-                    if(!response) return;
-                    let trainObj=pccApi.SEC[response.secIndex].cantons[response.cantonIndex].trains[parseInt(response.trainIndex)]
-                    let stationObj = pccApi.SEC[response.secIndex].cantons[response.cantonIndex]
-                    if(stationObj.hasOwnProperty('type')){
-                        stationObj.states.doorsOpenedWithoutTrain=false
-                    }
-                    trainObj.states.inZOPP=true
-                    apiSave()
-                } else
-                if (data.execute==='ZOPP-OFF-COM'){
-                    let response = JSON.parse(getCantonsInfo(data.target))
-                    if(!response) return;
-                    let trainObj=pccApi.SEC[response.secIndex].cantons[response.cantonIndex].trains[parseInt(response.trainIndex)]
-                    let stationObj = pccApi.SEC[response.secIndex].cantons[response.cantonIndex]
-                    if(stationObj.hasOwnProperty('type')){
-                        if(stationObj.states.doorsOpened){
-                            stationObj.states.doorsOpenedWithoutTrain=2
-                        }
-                    }
-                    trainObj.states.inZOPP=false
-                    apiSave()
-                } else
                 if (data.execute==='OBS-ON-COM'){
                     let stationIndex = parseInt(data.target.cIndex)
                     let sectionIndex = parseInt(data.target.secIndex)
@@ -695,24 +755,6 @@ wss.on('connection', (ws, req) => {
                     stationObj.states.maintKeyEng=false
                     apiSave()
                 } else
-                if (data.execute==='SAFE-ON-COM'){
-                    let response = JSON.parse(getCantonsInfo(data.target))
-                    if(!response) return;
-                    let trainObj=pccApi.SEC[response.secIndex].cantons[response.cantonIndex].trains[parseInt(response.trainIndex)]
-                    let stationObj = pccApi.SEC[response.secIndex].cantons[response.cantonIndex]
-                    
-                    trainObj.states.trainSecurised=true
-                    apiSave()
-                } else
-                if (data.execute==='SAFE-OFF-COM'){
-                    let response = JSON.parse(getCantonsInfo(data.target))
-                    if(!response) return;
-                    let trainObj=pccApi.SEC[response.secIndex].cantons[response.cantonIndex].trains[parseInt(response.trainIndex)]
-                    let stationObj = pccApi.SEC[response.secIndex].cantons[response.cantonIndex]
-                    
-                    trainObj.states.trainSecurised=false
-                    apiSave()
-                } else
                 if (data.execute==='HLP-ON-BTN'){
                     let stationIndex = parseInt(data.target.cIndex)
                     let sectionIndex = parseInt(data.target.secIndex)
@@ -775,20 +817,6 @@ wss.on('connection', (ws, req) => {
                     }
                     weweOnControleSale()
                 } else
-                if (data.execute==='OBSVEH-ON-COM'){
-                    let response = JSON.parse(getCantonsInfo(data.target))
-                    if(!response) return;
-                    let trainObj=pccApi.SEC[response.secIndex].cantons[response.cantonIndex].trains[parseInt(response.trainIndex)]
-                    trainObj.states.obstalceActive=true
-                    apiSave()
-                } else
-                if (data.execute==='OBSVEH-OFF-COM'){
-                    let response = JSON.parse(getCantonsInfo(data.target))
-                    if(!response) return;
-                    let trainObj=pccApi.SEC[response.secIndex].cantons[response.cantonIndex].trains[parseInt(response.trainIndex)]
-                    trainObj.states.obstalceActive=false
-                    apiSave()
-                } else
                 if (data.execute==='SETTIME-BTN'){
                     let stationIndex = parseInt(data.target.cIndex)
                     let sectionIndex = parseInt(data.target.secIndex)
@@ -796,29 +824,6 @@ wss.on('connection', (ws, req) => {
                     let newTime = parseInt(data.new)
 
                     stationObj.states.actualTime=newTime
-                    apiSave()
-                } else
-                if (data.execute==='EMCALL-BTN'){
-                    let response = JSON.parse(getCantonsInfo(data.target))
-                    if(!response) return;
-                    let trainObj=pccApi.SEC[response.secIndex].cantons[response.cantonIndex].trains[parseInt(response.trainIndex)]
-                    trainObj.states.trainEmCall=2
-                    trainObj.states.forbiddenStart=2
-                    let stationObj = pccApi.SEC[response.secIndex].cantons[response.cantonIndex]
-                    if(stationObj.hasOwnProperty('type')){
-                        stationObj.states.DSO=true
-                        stationObj.states.IDPOAlreadyActiveByALC=true
-                    }
-                    apiSave()
-                } else
-                if (data.execute==='ACQEMCALL-BTN'){
-                    let response = JSON.parse(getCantonsInfo(data.target))
-                    if(!response) return;
-                    let trainObj=pccApi.SEC[response.secIndex].cantons[response.cantonIndex].trains[parseInt(response.trainIndex)]
-                    trainObj.states.trainEmCall=false
-                    trainObj.states.forbiddenStart=false
-                    let stationObj = pccApi.SEC[response.secIndex].cantons[response.cantonIndex]
-                    stationObj.states.IDPOAlreadyActiveByALC=false
                     apiSave()
                 } else
                 if (data.execute==='AFD-ON-BTN'){

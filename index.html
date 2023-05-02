@@ -1,8 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
+    <meta charset="UTF-8">
     <meta name="description" content="PCC Multijoueur de PMD - ALPHA">
-    <meta http-equiv="content-language" content="fr">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PCC PMD</title>
     <meta name="robots" content="index">
 
     <meta property="og:type" content="website">
@@ -19,10 +21,7 @@
     <meta name="twitter:description" content="PMD Multijoueur - PCC réaliste [DEV]">
     <meta name="twitter:image" content="https://pmdapp.fr/tools/pccBeta/logo.png">
     <link rel="icon" href="favicon.png">
-    <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PCC PMD</title>
     <style>
         body{
             margin: 0;
@@ -32,17 +31,14 @@
             color: white;
             background-color: #8B8B8B;
         }
-        td.voyStationState{
-            border: #848484 solid;
-            border-width: 1px;
-            font-family: Arial, Helvetica, sans-serif;
-        }
+        td.voyStationState,
         td.voyStationTrain{
             border: #848484 solid;
             border-width: 1px;
             font-family: Arial, Helvetica, sans-serif;
         }
-        .voyStationState{
+        .voyStationState,
+        .voyStationTrain{
             color: black;
             background-color: #CCCCCC;
         }
@@ -54,10 +50,6 @@
             color: white;
             background-color: #8B8B8B;
         }
-        .voyStationTrain{
-            color: black;
-            background-color: #CCCCCC;
-        }
         .ok{
             background-color: #00EF35;
         }
@@ -67,8 +59,8 @@
         }
         .tco{
             background-color: #1C1C1C;
-            height: calc(1730px/4);
-            width: calc(7203px/4);
+            height: 432.5px;
+            width: 1800.75px;
         }
         .warn{
             background-color: #EF0000;
