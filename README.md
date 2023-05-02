@@ -13,7 +13,7 @@ Pour des raisons de confidentialité, uniquement certaines ressources sont dévo
 
 La documentation arrivera bientôt.
 
-# Instalation et utilisation
+# Installation et utilisation
 
 1. [Installez Node.js](https://nodejs.org/fr) pour votre système d’exploitation.
 2. Téléchargez le contenu de ce dépôt.
