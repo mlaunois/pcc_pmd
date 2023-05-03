@@ -59,10 +59,17 @@ let ckbObsVeh = document.getElementById('ckbObsVeh')
 
 let btnAcquitStation = document.getElementById('btnAcquitStation')
 
+let jeTeMontreTonUUID = document.getElementById('uuidStation')
+
 quaiTitle.innerHTML=selectMenu.value
 
 let ws = new WebSocket('ws://localhost:8081')
 let data=false
+
+let uuid = false;
+
+
+let fileIntervals=[]
 
 import sm from './sm.js'
 sm.init()
@@ -132,6 +139,19 @@ ws.addEventListener('open', ()=> {
                 inflationDuPrixDuCarburant++
             }
             console.log(sections)
+            ws.send(JSON.stringify({
+                op: 2,
+                demande: 'GET-UUID?'
+            }))
+        }else if(data.op===3){
+            uuid=data.uuid
+            jeTeMontreTonUUID.innerHTML=uuid
+            console.log(uuid)
+            ws.send(JSON.stringify({
+                op: 4,
+                demande: 'TEST-UUID?',
+                uuid: uuid
+            }))
         } else if (data.op===300){
             data=data.content
             let station = getStationsInfo(selectMenu.value)
@@ -195,6 +215,12 @@ let beepIntervalId = false
 let blinkIdReturn = 0
 
 function updateVoy(s){
+
+    for(let interval of fileIntervals){
+        if(interval===beepIntervalId) continue;
+        clearInterval(interval)
+    }
+
     sm.playSound('gongChange', 2)
     
     actualTime.value=s.states.actualTime
@@ -246,6 +272,7 @@ function updateVoy(s){
             case 2:
                 console.log(elemid+' Anomalie')
                 voy.classList.remove('ok')
+                voy.classList.toggle('alarm',true)
                 let blinkId = setInterval(async function() {
                     voy.classList.toggle('alarm')
                 }, 500)
@@ -253,6 +280,7 @@ function updateVoy(s){
                 console.log(blinkId)
                 blinkIntervalId.set(elemid, blinkId)
                 console.log(blinkIntervalId)
+                fileIntervals.push(blinkId)
                 break;
         }
     }
@@ -293,7 +321,7 @@ function updateVoy(s){
                 case 2:
                     console.log(elemid+' Anomalie')
                     voy.classList.remove('ok')
-                    voy.classList.add('alarm')
+                    voy.classList.toggle('alarm',true)
                     let blinkId = setInterval(async function() {
                         voy.classList.toggle('alarm')
                     }, 500)
@@ -301,9 +329,11 @@ function updateVoy(s){
                     console.log(blinkId)
                     blinkIntervalId.set(elemid, blinkId)
                     console.log(blinkIntervalId)
+                    fileIntervals.push(blinkId)
                     break;
             }
         }
+        console.log(fileIntervals)
     } else {
         for(let voy of document.getElementsByClassName('voyStationTrain')){
             voy.classList.remove('ok')
@@ -332,7 +362,8 @@ btnClosePP.addEventListener('click', ()=>{
     ws.send(JSON.stringify({
         op: 204,
         execute: "CLOSEPP-BTN",
-        target: getStationsInfo(selectMenu.value)
+        target: getStationsInfo(selectMenu.value),
+        uuid: uuid
     }));
 })
 
@@ -340,7 +371,8 @@ btnOpenPP.addEventListener('click', ()=>{
     ws.send(JSON.stringify({
         op: 204,
         execute: "OPENPP-BTN",
-        target: getStationsInfo(selectMenu.value)
+        target: getStationsInfo(selectMenu.value),
+        uuid: uuid
     }));
 })
 
@@ -353,7 +385,8 @@ btnOpenPV.addEventListener('click', ()=>{
     ws.send(JSON.stringify({
         op: 204,
         execute: "OPENPV-BTN",
-        target: trainId
+        target: trainId,
+        uuid: uuid
     }));
     trainOrderAffect.style.backgroundColor='white'
 })
@@ -367,7 +400,8 @@ btnClosePV.addEventListener('click', ()=>{
     ws.send(JSON.stringify({
         op: 204,
         execute: "CLOSEPV-BTN",
-        target: trainId
+        target: trainId,
+        uuid: uuid
     }));
     trainOrderAffect.style.backgroundColor='white'
 })
@@ -376,7 +410,8 @@ btnPartialPPOpeningInc.addEventListener('click', ()=>{
     ws.send(JSON.stringify({
         op: 204,
         execute: "GENRATEINC-PARTIALPPOPEN-BTN",
-        target: getStationsInfo(selectMenu.value)
+        target: getStationsInfo(selectMenu.value),
+        uuid: uuid
     }));
 })
 
@@ -384,7 +419,8 @@ btnPartialPPClosingInc.addEventListener('click', ()=>{
     ws.send(JSON.stringify({
         op: 204,
         execute: "GENRATEINC-PARTIALPPCLOSE-BTN",
-        target: getStationsInfo(selectMenu.value)
+        target: getStationsInfo(selectMenu.value),
+        uuid: uuid
     }));
 })
 
@@ -392,7 +428,8 @@ btnTotalPPOpeningInc.addEventListener('click', ()=>{
     ws.send(JSON.stringify({
         op: 204,
         execute: "GENRATEINC-TOTALPPOPEN-BTN",
-        target: getStationsInfo(selectMenu.value)
+        target: getStationsInfo(selectMenu.value),
+        uuid: uuid
     }));
 })
 
@@ -400,7 +437,8 @@ btnTotalPPClosingInc.addEventListener('click', ()=>{
     ws.send(JSON.stringify({
         op: 204,
         execute: "GENRATEINC-TOTALPPCLOSE-BTN",
-        target: getStationsInfo(selectMenu.value)
+        target: getStationsInfo(selectMenu.value),
+        uuid: uuid
     }));
 })
 
@@ -408,7 +446,8 @@ btnReset.addEventListener('click', ()=>{
     ws.send(JSON.stringify({
         op: 204,
         execute: "GENRATEINC-RESET-BTN",
-        target: getStationsInfo(selectMenu.value)
+        target: getStationsInfo(selectMenu.value),
+        uuid: uuid
     }));
 })
 
@@ -416,7 +455,8 @@ btnAcquitStation.addEventListener('click', ()=>{
     ws.send(JSON.stringify({
         op: 204,
         execute: "AQC-BTN",
-        target: getStationsInfo(selectMenu.value)
+        target: getStationsInfo(selectMenu.value),
+        uuid: uuid
     }));
 })
 
@@ -430,13 +470,15 @@ ckbZopp.addEventListener('input', ()=>{
         ws.send(JSON.stringify({
             op: 204,
             execute: "ZOPP-ON-COM",
-            target: trainId
+            target: trainId,
+            uuid: uuid
         }));
     } else {
         ws.send(JSON.stringify({
             op: 204,
             execute: "ZOPP-OFF-COM",
-            target: trainId
+            target: trainId,
+            uuid: uuid
         }));
     }
 })
@@ -451,13 +493,15 @@ ckbSafe.addEventListener('input', ()=>{
         ws.send(JSON.stringify({
             op: 204,
             execute: "SAFE-ON-COM",
-            target: trainId
+            target: trainId,
+            uuid: uuid
         }));
     } else {
         ws.send(JSON.stringify({
             op: 204,
             execute: "SAFE-OFF-COM",
-            target: trainId
+            target: trainId,
+            uuid: uuid
         }));
     }
 })
@@ -467,13 +511,15 @@ ckbObs.addEventListener('input', ()=>{
         ws.send(JSON.stringify({
             op: 204,
             execute: "OBS-ON-COM",
-            target: getStationsInfo(selectMenu.value)
+            target: getStationsInfo(selectMenu.value),
+            uuid: uuid
         }));
     } else {
         ws.send(JSON.stringify({
             op: 204,
             execute: "OBS-OFF-COM",
-            target: getStationsInfo(selectMenu.value)
+            target: getStationsInfo(selectMenu.value),
+            uuid: uuid
         }));
     }
 })
@@ -483,13 +529,15 @@ ckbUnlockPMS.addEventListener('input', ()=>{
         ws.send(JSON.stringify({
             op: 204,
             execute: "PMSUNLOCK-ON-COM",
-            target: getStationsInfo(selectMenu.value)
+            target: getStationsInfo(selectMenu.value),
+            uuid: uuid
         }));
     } else {
         ws.send(JSON.stringify({
             op: 204,
             execute: "PMSUNLOCK-OFF-COM",
-            target: getStationsInfo(selectMenu.value)
+            target: getStationsInfo(selectMenu.value),
+            uuid: uuid
         }));
     }
 })
@@ -499,13 +547,15 @@ ckbManualExploit.addEventListener('input', ()=>{
         ws.send(JSON.stringify({
             op: 204,
             execute: "PMSMANUAL-ON-COM",
-            target: getStationsInfo(selectMenu.value)
+            target: getStationsInfo(selectMenu.value),
+            uuid: uuid
         }));
     } else {
         ws.send(JSON.stringify({
             op: 204,
             execute: "PMSMANUAL-OFF-COM",
-            target: getStationsInfo(selectMenu.value)
+            target: getStationsInfo(selectMenu.value),
+            uuid: uuid
         }));
     }
 })
@@ -515,13 +565,15 @@ ckbMaintenance.addEventListener('input', ()=>{
         ws.send(JSON.stringify({
             op: 204,
             execute: "PMSMAINT-ON-COM",
-            target: getStationsInfo(selectMenu.value)
+            target: getStationsInfo(selectMenu.value),
+            uuid: uuid
         }));
     } else {
         ws.send(JSON.stringify({
             op: 204,
             execute: "PMSMAINT-OFF-COM",
-            target: getStationsInfo(selectMenu.value)
+            target: getStationsInfo(selectMenu.value),
+            uuid: uuid
         }));
     }
 })
@@ -530,7 +582,8 @@ btnActiveHLP.addEventListener('click', ()=>{
     ws.send(JSON.stringify({
         op: 204,
         execute: "HLP-ON-BTN",
-        target: getStationsInfo(selectMenu.value)
+        target: getStationsInfo(selectMenu.value),
+        uuid: uuid
     }));
 })
 
@@ -538,7 +591,8 @@ btnInactiveHLP.addEventListener('click', ()=>{
     ws.send(JSON.stringify({
         op: 204,
         execute: "HLP-OFF-BTN",
-        target: getStationsInfo(selectMenu.value)
+        target: getStationsInfo(selectMenu.value),
+        uuid: uuid
     }));
 })
 
@@ -546,7 +600,8 @@ btnActiveDSO.addEventListener('click', ()=>{
     ws.send(JSON.stringify({
         op: 204,
         execute: "DSO-ON-BTN",
-        target: getStationsInfo(selectMenu.value)
+        target: getStationsInfo(selectMenu.value),
+        uuid: uuid
     }));
 })
 
@@ -554,7 +609,8 @@ btnInactiveDSO.addEventListener('click', ()=>{
     ws.send(JSON.stringify({
         op: 204,
         execute: "DSO-OFF-BTN",
-        target: getStationsInfo(selectMenu.value)
+        target: getStationsInfo(selectMenu.value),
+        uuid: uuid
     }));
 })
 
@@ -562,7 +618,8 @@ btnIhibIDPOPLTP.addEventListener('click', ()=>{
     ws.send(JSON.stringify({
         op: 204,
         execute: "INHIBPLTPIDPO-BTN",
-        target: getStationsInfo(selectMenu.value)
+        target: getStationsInfo(selectMenu.value),
+        uuid: uuid
     }));
 })
 
@@ -570,7 +627,8 @@ btnIhibIDPOALC.addEventListener('click', ()=>{
     ws.send(JSON.stringify({
         op: 204,
         execute: "INHIBALCIDPO-BTN",
-        target: getStationsInfo(selectMenu.value)
+        target: getStationsInfo(selectMenu.value),
+        uuid: uuid
     }));
 })
 
@@ -584,13 +642,15 @@ ckbObsVeh.addEventListener('input', ()=>{
         ws.send(JSON.stringify({
             op: 204,
             execute: "OBSVEH-ON-COM",
-            target: trainId
+            target: trainId,
+            uuid: uuid
         }));
     } else {
         ws.send(JSON.stringify({
             op: 204,
             execute: "OBSVEH-OFF-COM",
-            target: trainId
+            target: trainId,
+            uuid: uuid
         }));
     }
 })
@@ -604,7 +664,8 @@ btnSetTime.addEventListener('click', ()=>{
         op: 204,
         execute: "SETTIME-BTN",
         new: newTime.value,
-        target: getStationsInfo(selectMenu.value)
+        target: getStationsInfo(selectMenu.value),
+        uuid: uuid
     }));
     
 })
@@ -618,7 +679,8 @@ btnEmCall.addEventListener('click', ()=>{
     ws.send(JSON.stringify({
         op: 204,
         execute: "EMCALL-BTN",
-        target: trainId
+        target: trainId,
+        uuid: uuid
     }));
     trainOrderAffect.style.backgroundColor='white'
 })
@@ -632,7 +694,8 @@ btnAcqEmCall.addEventListener('click', ()=>{
     ws.send(JSON.stringify({
         op: 204,
         execute: "ACQEMCALL-BTN",
-        target: trainId
+        target: trainId,
+        uuid: uuid
     }));
     trainOrderAffect.style.backgroundColor='white'
 })
@@ -641,7 +704,8 @@ btnAFD.addEventListener('click', ()=>{
     ws.send(JSON.stringify({
         op: 204,
         execute: "AFD-ON-BTN",
-        target: getStationsInfo(selectMenu.value)
+        target: getStationsInfo(selectMenu.value),
+        uuid: uuid
     }));
 })
 
@@ -649,7 +713,8 @@ btnRAZAFD.addEventListener('click', ()=>{
     ws.send(JSON.stringify({
         op: 204,
         execute: "AFD-RAZ-BTN",
-        target: getStationsInfo(selectMenu.value)
+        target: getStationsInfo(selectMenu.value),
+        uuid: uuid
     }));
 })
 
@@ -657,7 +722,8 @@ btnVVTS1.addEventListener('click', ()=>{
     ws.send(JSON.stringify({
         op: 204,
         execute: "VVTS1-ON-BTN",
-        target: getStationsInfo(selectMenu.value)
+        target: getStationsInfo(selectMenu.value),
+        uuid: uuid
     }));
 })
 
@@ -665,7 +731,8 @@ btnRAZVVTS1.addEventListener('click', ()=>{
     ws.send(JSON.stringify({
         op: 204,
         execute: "VVTS1-RAZ-BTN",
-        target: getStationsInfo(selectMenu.value)
+        target: getStationsInfo(selectMenu.value),
+        uuid: uuid
     }));
 })
 
@@ -673,7 +740,8 @@ btnInhibVVTS1.addEventListener('click', ()=>{
     ws.send(JSON.stringify({
         op: 204,
         execute: "VVTS1-INHIB-BTN",
-        target: getStationsInfo(selectMenu.value)
+        target: getStationsInfo(selectMenu.value),
+        uuid: uuid
     }));
 })
 
@@ -681,7 +749,8 @@ btnVVTS2.addEventListener('click', ()=>{
     ws.send(JSON.stringify({
         op: 204,
         execute: "VVTS2-ON-BTN",
-        target: getStationsInfo(selectMenu.value)
+        target: getStationsInfo(selectMenu.value),
+        uuid: uuid
     }));
 })
 
@@ -689,7 +758,8 @@ btnRAZVVTS2.addEventListener('click', ()=>{
     ws.send(JSON.stringify({
         op: 204,
         execute: "VVTS2-RAZ-BTN",
-        target: getStationsInfo(selectMenu.value)
+        target: getStationsInfo(selectMenu.value),
+        uuid: uuid
     }));
 })
 
@@ -697,7 +767,8 @@ btnInhibVVTS2.addEventListener('click', ()=>{
     ws.send(JSON.stringify({
         op: 204,
         execute: "VVTS2-INHIB-BTN",
-        target: getStationsInfo(selectMenu.value)
+        target: getStationsInfo(selectMenu.value),
+        uuid: uuid
     }));
 })
 
@@ -705,7 +776,8 @@ btnDEPA.addEventListener('click', ()=>{
     ws.send(JSON.stringify({
         op: 204,
         execute: "DEPA-ON-BTN",
-        target: getStationsInfo(selectMenu.value)
+        target: getStationsInfo(selectMenu.value),
+        uuid: uuid
     }));
 })
 
@@ -713,7 +785,8 @@ btnRAZdepa.addEventListener('click', ()=>{
     ws.send(JSON.stringify({
         op: 204,
         execute: "DEPA-RAZ-BTN",
-        target: getStationsInfo(selectMenu.value)
+        target: getStationsInfo(selectMenu.value),
+        uuid: uuid
     }));
 })
 
@@ -721,7 +794,8 @@ btnIDPF.addEventListener('click', ()=>{
     ws.send(JSON.stringify({
         op: 204,
         execute: "IDPF-ON-BTN",
-        target: getStationsInfo(selectMenu.value)
+        target: getStationsInfo(selectMenu.value),
+        uuid: uuid
     }));
 })
 
@@ -729,7 +803,8 @@ btnRAZidpf.addEventListener('click', ()=>{
     ws.send(JSON.stringify({
         op: 204,
         execute: "IDPF-RAZ-BTN",
-        target: getStationsInfo(selectMenu.value)
+        target: getStationsInfo(selectMenu.value),
+        uuid: uuid
     }));
 })
 
@@ -737,7 +812,8 @@ btnMAPF.addEventListener('click', ()=>{
     ws.send(JSON.stringify({
         op: 204,
         execute: "MAPF-ON-BTN",
-        target: getStationsInfo(selectMenu.value)
+        target: getStationsInfo(selectMenu.value),
+        uuid: uuid
     }));
 })
 
@@ -745,7 +821,8 @@ btnRAZmapf.addEventListener('click', ()=>{
     ws.send(JSON.stringify({
         op: 204,
         execute: "MAPF-RAZ-BTN",
-        target: getStationsInfo(selectMenu.value)
+        target: getStationsInfo(selectMenu.value),
+        uuid: uuid
     }));
 })
 
@@ -753,7 +830,8 @@ btnISTA.addEventListener('click', ()=>{
     ws.send(JSON.stringify({
         op: 204,
         execute: "ISTA-ON-BTN",
-        target: getStationsInfo(selectMenu.value)
+        target: getStationsInfo(selectMenu.value),
+        uuid: uuid
     }));
 })
 
@@ -761,6 +839,7 @@ btnRAZista.addEventListener('click', ()=>{
     ws.send(JSON.stringify({
         op: 204,
         execute: "ISTA-RAZ-BTN",
-        target: getStationsInfo(selectMenu.value)
+        target: getStationsInfo(selectMenu.value),
+        uuid: uuid
     }));
 })
